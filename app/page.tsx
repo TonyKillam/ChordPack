@@ -8,11 +8,13 @@ export default function Home() {
     (keyof typeof chordData)[]
   >([]);
 
-  const addChord = (chord: string) => {
-    if (!selectedChords.includes(chord)) {
-      setSelectedChords([...selectedChords, chord]);
-    }
-  };
+  const [search, setSearch] = useState("");
+
+  const chordNames = Object.keys(chordData) as (keyof typeof chordData)[];
+
+  const filteredChords = chordNames.filter((chord) =>
+    chord.toLowerCase().includes(search.toLowerCase())
+  );
 
   const removeChord = (chord: string) => {
     setSelectedChords(
@@ -32,41 +34,55 @@ export default function Home() {
           Build and export chord diagrams.
         </p>
 
-        <div className="mb-8 flex gap-3">
-          <button
-            onClick={() => addChord("C")}
-            className="rounded bg-black px-4 py-2 text-white"
-          >
-            C
-          </button>
+        <div className="mb-8 w-full max-w-md">
+          <input
+            type="text"
+            placeholder="Search chords..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full rounded-xl border bg-white p-4 shadow-sm"
+          />
 
-          <button
-            onClick={() => addChord("G")}
-            className="rounded bg-black px-4 py-2 text-white"
-          >
-            G
-          </button>
+          {search && (
+            <div className="mt-2 overflow-hidden rounded-xl border bg-white shadow-sm">
+              {filteredChords.map((chord) => (
+                <button
+                  key={chord}
+                  className="block w-full px-4 py-3 text-left transition hover:bg-zinc-100"
+                  onClick={() => {
+                    setSelectedChords((prev) =>
+                      prev.includes(chord)
+                        ? prev
+                        : [...prev, chord]
+                    );
 
-          <button
-            onClick={() => addChord("Am")}
-            className="rounded bg-black px-4 py-2 text-white"
-          >
-            Am
-          </button>
-
-          <button
-            onClick={() => addChord("F")}
-            className="rounded bg-black px-4 py-2 text-white"
-          >
-            F
-          </button>
+                    setSearch("");
+                  }}
+                >
+                  {chord}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
+
+        {selectedChords.length === 0 && (
+          <div className="rounded-2xl border border-dashed bg-white p-12 text-center text-zinc-500">
+            Search for a chord above to get started.
+          </div>
+        )}
+
+        {search && filteredChords.length === 0 && (
+          <div className="mt-2 rounded border bg-white p-3 text-zinc-500">
+            No Chords found.
+          </div>
+        )}
 
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
           {selectedChords.map((chord) => (
             <div
               key={chord}
-              className="rounded-xl border bg-white p-6 shadow"
+              className="rounded-2xl border bg-white p-6 shadow-sm"
             >
               <div className="mb-4 text-center text-3xl font-bold">
                 {chord}
@@ -78,7 +94,7 @@ export default function Home() {
 
               <button
                 onClick={() => removeChord(chord)}
-                className="mt-4 w-full rounded bg-red-500 py-2 text-white"
+                className="mt-4 w-full rounded-lg border py-2 hover:bg-zinc-100"
               >
                 Remove
               </button>
